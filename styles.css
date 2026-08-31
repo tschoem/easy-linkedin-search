@@ -46,6 +46,26 @@
   vertical-align: middle;
 }
 
+.cli-linkedin-link--gmail {
+  display: inline-flex !important;
+  margin-left: 6px !important;
+  margin-right: 2px !important;
+  vertical-align: middle !important;
+  align-self: center;
+  flex-shrink: 0;
+  float: none !important;
+  position: relative;
+  z-index: 50;
+  pointer-events: auto !important;
+}
+
+tr.zA .cli-linkedin-link--gmail,
+tr.yW .cli-linkedin-link--gmail {
+  margin-left: 4px !important;
+  width: 14px;
+  height: 14px;
+}
+
 .cli-linkedin-link--hubspot {
   display: inline-flex !important;
   margin-left: 6px !important;

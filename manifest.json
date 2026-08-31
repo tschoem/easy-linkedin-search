@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Easy LinkedIn Search",
-  "version": "1.7.0",
-  "description": "LinkedIn search icons next to contacts across apps like Google Calendar and HubSpot. Open in a side window or a new tab.",
+  "version": "1.9.1",
+  "description": "LinkedIn search icons next to contacts across apps like Google Calendar, Gmail, and HubSpot. Open in a side window or a new tab.",
   "author": "Thomas Schoemaecker",
   "homepage_url": "https://github.com/tschoem/easy-linkedin-search",
   "permissions": ["storage", "scripting"],
   "host_permissions": [
     "https://calendar.google.com/*",
+    "https://mail.google.com/*",
     "https://*.hubspot.com/*"
   ],
   "background": {
@@ -27,6 +28,13 @@
       "js": ["settings.js", "shared.js", "content-calendar.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["settings.js", "shared.js", "content-gmail.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle",
+      "all_frames": true
     },
     {
       "matches": ["https://*.hubspot.com/*"],

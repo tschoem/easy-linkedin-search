@@ -7,6 +7,7 @@ Open-source Chrome extension that adds a LinkedIn icon next to contacts in the a
 Supported today:
 
 - **Google Calendar** — event guests
+- **Gmail** — senders in the inbox, plus senders and recipients in opened mail and compose
 - **HubSpot** — contact cards, lists, and records
 
 More apps can be added the same way. Turn each app on or off from the extension popup.
@@ -17,6 +18,7 @@ More apps can be added the same way. Turn each app on or off from the extension 
 - Company from job title (“… at Acme”) or email domain when needed
 - **Side window** (resizes the current app and opens LinkedIn beside it) or a **new tab**
 - Per-app toggles plus a master enable switch
+- Skip contacts on excluded email domains (for example `gmail.com`)
 
 ## Install (unpacked)
 
@@ -44,6 +46,14 @@ cd easy-linkedin-search
 
 Example: guest **Doe, Jane** with `jane.doe@acme.com` → search **“Jane Doe Acme”**.
 
+### Gmail
+
+1. Open the inbox, a conversation, or a compose window
+2. Click the LinkedIn icon beside a person whose **full name** is shown
+3. Search uses the display name plus company from the email domain
+
+Icons are omitted for first-name-only labels (for example “Alex”) and for addresses on excluded domains.
+
 ### HubSpot
 
 1. Open a contacts list, association panel, or contact record
@@ -58,7 +68,9 @@ Click the extension icon in the toolbar:
 | --- | --- |
 | **Enable extension** | Master switch for icons |
 | **Google Calendar** | Show icons on Calendar guests |
+| **Gmail** | Show icons on Gmail senders and recipients |
 | **HubSpot** | Show icons on HubSpot contact cards |
+| **Excluded email domains** | Hide icons for addresses on these domains |
 | **Side window** | Resize the current app and open LinkedIn beside it |
 | **New tab** | Open LinkedIn search in a new browser tab |
 
@@ -66,7 +78,7 @@ Click the extension icon in the toolbar:
 
 - `storage` — save settings
 - `scripting` — inject into already-open tabs after install/reload
-- Host access only to the apps you enable (currently `calendar.google.com` and HubSpot CRM hosts)
+- Host access only to the apps you enable (currently Calendar, Gmail, and HubSpot CRM)
 
 ## Project layout
 
@@ -75,6 +87,7 @@ manifest.json           Extension manifest (MV3)
 background.js           Service worker (side window + injection)
 shared.js               Shared LinkedIn helpers
 content-calendar.js     Google Calendar adapter
+content-gmail.js        Gmail adapter
 content-hubspot.js      HubSpot adapter
 settings.js             Shared settings helpers
 popup.html/js/css       Toolbar settings UI

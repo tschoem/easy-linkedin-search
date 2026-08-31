@@ -2,15 +2,17 @@
   if (globalThis.__cliSettingsLoaded) return;
   globalThis.__cliSettingsLoaded = true;
 
-  const CLI_APP_IDS = ["calendar", "hubspot"];
+  const CLI_APP_IDS = ["calendar", "gmail", "hubspot"];
 
   const CLI_DEFAULTS = {
     enabled: true,
     clickTarget: "sidePanel", // "sidePanel" | "newTab"
     apps: {
       calendar: true,
+      gmail: true,
       hubspot: true,
     },
+    excludedDomains: [],
   };
 
   function cliCoerceBool(value, fallback) {
@@ -41,12 +43,46 @@
     return apps;
   }
 
+  function cliNormalizeExcludedDomains(raw) {
+    const list = Array.isArray(raw?.excludedDomains)
+      ? raw.excludedDomains
+      : Array.isArray(raw)
+        ? raw
+        : String(raw?.excludedDomains ?? raw ?? "").split(/[\s,;]+/);
+    const out = [];
+    const seen = new Set();
+    for (const item of list) {
+      let domain = String(item || "")
+        .trim()
+        .toLowerCase()
+        .replace(/^@/, "")
+        .replace(/^https?:\/\//, "")
+        .replace(/\/.*$/, "");
+      if (domain.startsWith("www.")) domain = domain.slice(4);
+      if (!/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/i.test(domain)) continue;
+      if (seen.has(domain)) continue;
+      seen.add(domain);
+      out.push(domain);
+    }
+    return out;
+  }
+
+  function cliEmailDomainExcluded(email, settings) {
+    const normalized = String(email || "").trim().toLowerCase();
+    const at = normalized.lastIndexOf("@");
+    if (at < 0) return false;
+    const host = normalized.slice(at + 1);
+    const list = settings?.excludedDomains || [];
+    return list.some((domain) => host === domain || host.endsWith(`.${domain}`));
+  }
+
   function cliNormalizeSettings(raw) {
     const merged = { ...(raw || {}) };
     return {
       enabled: cliCoerceBool(merged.enabled, true),
       clickTarget: cliNormalizeClickTarget(merged),
       apps: cliNormalizeApps(merged),
+      excludedDomains: cliNormalizeExcludedDomains(merged),
     };
   }
 
@@ -90,6 +126,8 @@
   globalThis.CLI_APP_IDS = CLI_APP_IDS;
   globalThis.CLI_DEFAULTS = CLI_DEFAULTS;
   globalThis.cliNormalizeSettings = cliNormalizeSettings;
+  globalThis.cliNormalizeExcludedDomains = cliNormalizeExcludedDomains;
+  globalThis.cliEmailDomainExcluded = cliEmailDomainExcluded;
   globalThis.cliAppEnabled = cliAppEnabled;
   globalThis.cliGetSettings = cliGetSettings;
   globalThis.cliSaveSettings = cliSaveSettings;
@@ -98,6 +136,8 @@
     window.CLI_APP_IDS = CLI_APP_IDS;
     window.CLI_DEFAULTS = CLI_DEFAULTS;
     window.cliNormalizeSettings = cliNormalizeSettings;
+    window.cliNormalizeExcludedDomains = cliNormalizeExcludedDomains;
+    window.cliEmailDomainExcluded = cliEmailDomainExcluded;
     window.cliAppEnabled = cliAppEnabled;
     window.cliGetSettings = cliGetSettings;
     window.cliSaveSettings = cliSaveSettings;

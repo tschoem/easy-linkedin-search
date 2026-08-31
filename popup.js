@@ -1,8 +1,10 @@
 (() => {
   const features = document.getElementById("features");
   const appsFieldset = document.getElementById("apps");
+  const filters = document.getElementById("filters");
   const enabled = document.getElementById("enabled");
   const status = document.getElementById("status");
+  const excludedDomains = document.getElementById("excludedDomains");
   const radios = [...document.querySelectorAll('input[name="clickTarget"]')];
   const appInputs = [...document.querySelectorAll("input[data-app]")];
 
@@ -16,6 +18,7 @@
       enabled: enabled.checked,
       clickTarget: selected?.value === "newTab" ? "newTab" : "sidePanel",
       apps,
+      excludedDomains: cliNormalizeExcludedDomains(excludedDomains.value),
     };
   }
 
@@ -26,8 +29,12 @@
     for (const input of appInputs) {
       input.checked = Boolean(settings.apps?.[input.dataset.app]);
     }
+    if (document.activeElement !== excludedDomains) {
+      excludedDomains.value = (settings.excludedDomains || []).join("\n");
+    }
     features.disabled = !settings.enabled;
     appsFieldset.disabled = !settings.enabled;
+    filters.disabled = !settings.enabled;
   }
 
   function flash(message) {
@@ -44,10 +51,17 @@
     flash("Saved");
   }
 
+  function debouncePersist() {
+    clearTimeout(debouncePersist._t);
+    debouncePersist._t = setTimeout(persist, 450);
+  }
+
   cliGetSettings().then((settings) => {
     writeForm(settings);
     enabled.addEventListener("change", persist);
     for (const radio of radios) radio.addEventListener("change", persist);
     for (const input of appInputs) input.addEventListener("change", persist);
+    excludedDomains.addEventListener("input", debouncePersist);
+    excludedDomains.addEventListener("blur", persist);
   });
 })();
