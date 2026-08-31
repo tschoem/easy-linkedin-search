@@ -41,7 +41,7 @@
   let settings =
     typeof cliNormalizeSettings === "function" && typeof CLI_DEFAULTS !== "undefined"
       ? cliNormalizeSettings(CLI_DEFAULTS)
-      : { enabled: true, clickTarget: "sidePanel", apps: { calendar: true, hubspot: true } };
+      : { enabled: true, clickTarget: "sidePanel", apps: { calendar: true, gmail: true, hubspot: true }, excludedDomains: [] };
 
   function titleCase(parts) {
     return parts
@@ -139,8 +139,24 @@
     const words = name.split(/\s+/).filter(Boolean);
     if (words.length > 4) name = words.slice(0, 3).join(" ");
     if (!name || name.length < 2 || name.includes("@")) return "";
-    if (/^(organizer|guest|home|office|edit|email|contacts|actions)$/i.test(name)) return "";
+    if (/^(organizer|guest|home|office|edit|email|contacts|actions|me|you)$/i.test(name)) return "";
     return name;
+  }
+
+  function isFullPersonName(raw) {
+    const name = normalizePersonName(raw);
+    if (!name) return "";
+    const words = name.split(/\s+/).filter(Boolean);
+    if (words.length < 2 || words.length > 4) return "";
+    if (!words.every((w) => /^[\p{L}][\p{L}'’.-]*$/u.test(w))) return "";
+    return name;
+  }
+
+  function emailDomainExcluded(email) {
+    if (typeof cliEmailDomainExcluded === "function") {
+      return cliEmailDomainExcluded(email, settings);
+    }
+    return false;
   }
 
   function linkedInSearchUrl(query) {
@@ -200,6 +216,10 @@
     a.innerHTML = LINKEDIN_SVG;
 
     a.addEventListener("mousedown", (e) => e.stopPropagation(), true);
+    a.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+    for (const type of ["mouseover", "mouseenter", "mousemove", "mouseout", "mouseleave", "pointerover", "pointerenter"]) {
+      a.addEventListener(type, (e) => e.stopPropagation(), true);
+    }
     a.addEventListener(
       "click",
       (e) => {
@@ -312,6 +332,7 @@
       if (changes.enabled) next.enabled = changes.enabled.newValue;
       if (changes.clickTarget) next.clickTarget = changes.clickTarget.newValue;
       if (changes.apps) next.apps = changes.apps.newValue;
+      if (changes.excludedDomains) next.excludedDomains = changes.excludedDomains.newValue;
       applySettings(next);
       if (!appEnabled(appId)) {
         clearAllIcons();
@@ -343,6 +364,7 @@
     EMAIL_FIND_RE,
     parseEmail,
     normalizePersonName,
+    isFullPersonName,
     companyFromDomain,
     linkedInSearchUrl,
     createLink,
@@ -351,6 +373,7 @@
     removeIconsIn,
     clearAllIcons,
     appEnabled,
+    emailDomainExcluded,
     getSettingsSnapshot,
     applySettings,
     buildQuery,

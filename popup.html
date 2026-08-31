@@ -36,10 +36,32 @@
 
       <label class="row">
         <div>
+          <strong>Gmail</strong>
+          <span>Icons next to senders and recipients</span>
+        </div>
+        <input type="checkbox" id="app-gmail" data-app="gmail" />
+      </label>
+
+      <label class="row">
+        <div>
           <strong>HubSpot</strong>
           <span>Icons on contact cards and lists</span>
         </div>
         <input type="checkbox" id="app-hubspot" data-app="hubspot" />
+      </label>
+    </fieldset>
+
+    <fieldset id="filters">
+      <legend>Skip domains</legend>
+      <label class="stack">
+        <strong>Excluded email domains</strong>
+        <span>No icons for these addresses. Separate with commas or new lines.</span>
+        <textarea
+          id="excludedDomains"
+          rows="3"
+          placeholder="gmail.com&#10;yahoo.com"
+          spellcheck="false"
+        ></textarea>
       </label>
     </fieldset>
 

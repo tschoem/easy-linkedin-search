@@ -13,6 +13,7 @@
     removeIconsIn,
     appEnabled,
     buildQuery,
+    emailDomainExcluded,
     startSiteAdapter,
   } = globalThis.CLI;
 
@@ -111,7 +112,10 @@
     }
 
     const email = chipEmail(chip);
-    if (!email) return;
+    if (!email || emailDomainExcluded(email)) {
+      removeIconsIn(chip);
+      return;
+    }
 
     const info = parseEmail(email);
     if (!info) return;

@@ -16,6 +16,7 @@
     removeIconsIn,
     appEnabled,
     startSiteAdapter,
+    emailDomainExcluded,
   } = globalThis.CLI;
 
   const CARD_ATTR = "data-cli-hubspot-card";
@@ -267,6 +268,10 @@
   function ensureIcon(card, email) {
     if (!appEnabled("hubspot") || !card || !email) return;
     if (!extensionAlive()) return;
+    if (emailDomainExcluded(email)) {
+      removeIconsIn(card);
+      return;
+    }
 
     const info = parseEmail(email);
     if (!info) return;

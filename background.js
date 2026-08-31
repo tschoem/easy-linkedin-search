@@ -2,6 +2,7 @@ importScripts("settings.js");
 
 const SITE_URLS = [
   "https://calendar.google.com/*",
+  "https://mail.google.com/*",
   "https://*.hubspot.com/*",
 ];
 
@@ -9,6 +10,11 @@ const SITE_INJECT = {
   calendar: {
     match: (url) => url.startsWith("https://calendar.google.com/"),
     files: ["settings.js", "shared.js", "content-calendar.js"],
+  },
+  gmail: {
+    match: (url) => /^https:\/\/mail\.google\.com\//i.test(url),
+    files: ["settings.js", "shared.js", "content-gmail.js"],
+    allFrames: true,
   },
   hubspot: {
     match: (url) => /^https:\/\/app(-[a-z0-9]+)?\.hubspot\.com\//i.test(url),
@@ -35,16 +41,18 @@ async function injectIntoTab(tabId, url) {
   const site = siteForUrl(url);
   if (!site) return;
 
+  const target = site.allFrames ? { tabId, allFrames: true } : { tabId };
+
   try {
     await chrome.scripting.insertCSS({
-      target: { tabId },
+      target,
       files: ["styles.css"],
     });
   } catch (_) {}
 
   try {
     await chrome.scripting.executeScript({
-      target: { tabId },
+      target,
       files: site.files,
     });
   } catch (err) {
